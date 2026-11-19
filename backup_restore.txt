@@ -1,0 +1,10 @@
+$ts  = Get-Date -Format "yyyy-MM-dd_HH-mm-ss"
+$db  = "*****"
+$dir = "C:\Users\spurs\OneDrive\Desktop\backup"
+$env:PGPASSWORD = "รหัสผ่าน"
+pg_dump -Fc -v -h ******** -U ********* -d $db -f "$dir\${db}_$ts.dump"
+if ($LASTEXITCODE -ne 0) { Write-Error "backup failed" }
+
+*****************************************************************************************************
+pg_restore -h localhost -U postgres -d manager_test --no-owner --no-privileges -v "C:\Users\spurs\OneDrive\Desktop\backup\manager_2026-11-19_14-40-17.dump"
+
