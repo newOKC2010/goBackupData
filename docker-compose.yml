@@ -1,0 +1,11 @@
+services:
+  pg-backup:
+    build: .
+    container_name: pg-backup
+    restart: unless-stopped
+    env_file:
+      - .env
+    cap_add:
+      - SYS_ADMIN
+    devices:
+      - /dev/fuse
