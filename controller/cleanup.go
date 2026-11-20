@@ -23,7 +23,7 @@ func cleanOldFiles(cfg *Config, base string) {
 		}
 
 		for _, e := range entries {
-			if e.IsDir() || !strings.HasSuffix(e.Name(), ".dump") {
+			if e.IsDir() || (!strings.HasSuffix(e.Name(), ".dump") && !strings.HasSuffix(e.Name(), ".enc")) {
 				continue
 			}
 			info, err := e.Info()

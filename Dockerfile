@@ -6,7 +6,7 @@ COPY . .
 RUN go build -o backup .
 
 FROM alpine:3.21
-RUN apk add --no-cache postgresql17-client cifs-utils tzdata
+RUN apk add --no-cache postgresql17-client cifs-utils tzdata openssl
 ENV TZ=Asia/Bangkok
 WORKDIR /app
 COPY --from=build /app/backup .

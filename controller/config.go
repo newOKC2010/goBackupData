@@ -18,13 +18,14 @@ type Config struct {
 	Hour      int
 	Minute    int
 	RetainDays int
+	EncPass   string
 }
 
 func LoadConfig() (*Config, error) {
 	keys := []string{
 		"DB_NAME_BACKUP", "DB_PATH_DEST", "DB_PASS_BKUSER",
 		"DB_HOST_BACKUP", "DB_HOST_USER_BACKUP", "DB_HOST_PASS_BACKUP",
-		"TIME_BACKUP", "CHECK_FILE",
+		"TIME_BACKUP", "CHECK_FILE", "ENC_PASS",
 	}
 	env := map[string]string{}
 	var missing []string
@@ -64,6 +65,7 @@ func LoadConfig() (*Config, error) {
 		Hour:      h,
 		Minute:    m,
 		RetainDays: retain,
+		EncPass:    env["ENC_PASS"],
 	}, nil
 }
 
