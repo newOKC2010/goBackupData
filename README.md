@@ -146,3 +146,6 @@ docker compose logs -f
 | `TIME_BACKUP` | เวลา backup ทุกวัน `HH:MM` |
 | `CHECK_FILE` | เก็บไฟล์ย้อนหลังกี่วัน `<เลข>d` เช่น `7d` |
 | `ENC_PASS` | รหัสเข้ารหัสไฟล์ — **เก็บไว้ให้ดี ห้ามลืม** |
+| `MOPH_ALERT_METHOD` / `MOPH_ALERT_URL` | method + endpoint ของ MOPH Alert API |
+| `MOPH_ALERT_CLIENT_ID` / `MOPH_ALERT_SECRET_KEY` | credential ของ MOPH Alert |
+| `CID_ALERT` | CID ผู้รับ alert คั่นด้วย `,` |

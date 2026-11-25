@@ -19,6 +19,11 @@ type Config struct {
 	Minute    int
 	RetainDays int
 	EncPass   string
+	AlertMethod string
+	AlertURL    string
+	AlertClientID string
+	AlertSecret string
+	AlertCIDs   []string
 }
 
 func LoadConfig() (*Config, error) {
@@ -26,6 +31,8 @@ func LoadConfig() (*Config, error) {
 		"DB_NAME_BACKUP", "DB_PATH_DEST", "DB_PASS_BKUSER",
 		"DB_HOST_BACKUP", "DB_HOST_USER_BACKUP", "DB_HOST_PASS_BACKUP",
 		"TIME_BACKUP", "CHECK_FILE", "ENC_PASS",
+		"MOPH_ALERT_METHOD", "MOPH_ALERT_URL",
+		"MOPH_ALERT_CLIENT_ID", "MOPH_ALERT_SECRET_KEY", "CID_ALERT",
 	}
 	env := map[string]string{}
 	var missing []string
@@ -65,7 +72,12 @@ func LoadConfig() (*Config, error) {
 		Hour:      h,
 		Minute:    m,
 		RetainDays: retain,
-		EncPass:    env["ENC_PASS"],
+		EncPass:   env["ENC_PASS"],
+		AlertMethod: env["MOPH_ALERT_METHOD"],
+		AlertURL:    env["MOPH_ALERT_URL"],
+		AlertClientID: env["MOPH_ALERT_CLIENT_ID"],
+		AlertSecret: env["MOPH_ALERT_SECRET_KEY"],
+		AlertCIDs:   splitTrim(env["CID_ALERT"]),
 	}, nil
 }
 

@@ -6,26 +6,33 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 	"time"
 )
 
-// RunBackup mount share แล้ว pg_dump ทุก database
+// RunBackup mount share แล้ว pg_dump ทุก database จบด้วยส่ง alert สรุปผล
 func RunBackup(cfg *Config) {
 	log.Println("=== เริ่ม backup ===")
+
+	ts := time.Now().Format("2006-01-02_15-04-05")
 
 	target, unmount, err := mountShare(cfg.DestBase, cfg.SharePass)
 	if err != nil {
 		log.Printf("[ERROR] เชื่อมต่อ share ไม่ได้: %v", err)
+		sendAlert(cfg, false, ts, []string{"เชื่อมต่อ share ปลายทางไม่ได้: " + cfg.DestBase})
 		return
 	}
 	defer unmount()
 
-	ts := time.Now().Format("2006-01-02_15-04-05")
+	var results []string
+	fail := false
 
 	for _, db := range cfg.DBNames {
 		dbDir := filepath.Join(target, db)
 		if err := os.MkdirAll(dbDir, 0o755); err != nil {
 			log.Printf("[ERROR] สร้างโฟลเดอร์ %s ไม่ได้: %v", dbDir, err)
+			results = append(results, "FAIL "+db+" (สร้างโฟลเดอร์ไม่ได้)")
+			fail = true
 			continue
 		}
 
@@ -40,16 +47,24 @@ func RunBackup(cfg *Config) {
 
 		if result, err := cmd.CombinedOutput(); err != nil {
 			log.Printf("[ERROR] backup %s ล้มเหลว: %v\n%s", db, err, result)
+			results = append(results, "FAIL "+db+": "+firstLine(string(result)))
+			fail = true
 			continue
 		}
 		log.Printf("[OK] backup %s -> %s", db, outFile)
 
 		if err := encryptFile(outFile, cfg.EncPass); err != nil {
 			log.Printf("[ERROR] encrypt %s ล้มเหลว: %v (ไฟล์ .dump ยังอยู่)", outFile, err)
+			results = append(results, "FAIL "+db+": encrypt ล้มเหลว")
+			fail = true
+			continue
 		}
+		results = append(results, "OK   "+db)
 	}
 
 	cleanOldFiles(cfg, target)
+
+	sendAlert(cfg, !fail, ts, results)
 
 	log.Println("=== backup เสร็จสิ้น ===")
 }
@@ -70,4 +85,13 @@ func encryptFile(path, pass string) error {
 	}
 	log.Printf("[OK] encrypt -> %s", enc)
 	return nil
+}
+
+// firstLine ตัดเอาแค่บรรทัดแรก ไม่เกิน 150 ตัว
+func firstLine(s string) string {
+	s, _, _ = strings.Cut(s, "\n")
+	if len(s) > 150 {
+		s = s[:150] + "..."
+	}
+	return strings.TrimSpace(s)
 }
